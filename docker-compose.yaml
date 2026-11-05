@@ -1,0 +1,54 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: homeChallengeAPI_python
+    ports:
+      - "8080:8000"
+    env_file:
+      - .env
+    environment:
+      # Dentro de Docker la DB se alcanza por el nombre del servicio y su puerto interno
+      DB_HOST: db
+      DB_PORT: 5432
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:15
+    restart: always
+    ports:
+      - "${DB_PORT}:5432"
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+    container_name: homeChallengeDB_python
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  db_test:
+    image: postgres:15
+    profiles: ["test"]
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: HomeChallengeDB_test
+      POSTGRES_USER: test_user
+    container_name: homeChallengeDB_python_test
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test_user -d HomeChallengeDB_test"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+

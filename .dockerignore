@@ -1,0 +1,13 @@
+.venv
+__pycache__
+*.py[oc]
+.pytest_cache
+.git
+.gitignore
+postgres
+tests
+.env
+.env.*
+Dockerfile
+docker-compose.yaml
+README.md

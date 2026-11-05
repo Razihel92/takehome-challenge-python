@@ -1,0 +1,18 @@
+import os
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    db_password: str
+    db_name: str
+    db_host: str
+    db_port: int
+    db_username: str
+    port: int
+    host_api: str
+    app_env: str = "development"
+    model_config = SettingsConfigDict(env_file=os.getenv("ENV_FILE", ".env"))
+
+
+settings = Settings()
