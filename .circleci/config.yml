@@ -1,0 +1,41 @@
+version: 2.1
+
+jobs:
+  test:
+    docker:
+      - image: cimg/python:3.14
+        environment:
+          APP_ENV: test
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: HomeChallengeDB_test
+          DB_USERNAME: test_user
+          DB_PASSWORD: test_password
+          PORT: 8000
+          HOST_API: http://localhost:8000
+      - image: postgres:15
+        environment:
+          POSTGRES_DB: HomeChallengeDB_test
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+    steps:
+      - checkout
+      - run:
+          name: Install uv
+          command: |
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$BASH_ENV"
+      - run:
+          name: Install dependencies
+          command: uv sync --locked
+      - run:
+          name: Wait for PostgreSQL
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+      - run:
+          name: Run tests
+          command: uv run pytest -v
+
+workflows:
+  ci:
+    jobs:
+      - test
