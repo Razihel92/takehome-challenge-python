@@ -1,4 +1,6 @@
 version: 2.1
+orbs:
+  coveralls: coveralls/coveralls@2.2.5
 
 jobs:
   test:
@@ -34,7 +36,7 @@ jobs:
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
       - run:
           name: Run tests
-          command: uv run pytest -v
+          command: uv run pytest -v --cov=app --cov-report=xml --cov-report=term-missing
 
 workflows:
   ci:
