@@ -1,4 +1,5 @@
 version: 2.1
+
 orbs:
   coveralls: coveralls/coveralls@2.2.5
 
@@ -37,6 +38,9 @@ jobs:
       - run:
           name: Run tests
           command: uv run pytest -v --cov=app --cov-report=xml --cov-report=term-missing
+      - coveralls/upload:
+          coverage_file: coverage.xml
+          coverage_format: cobertura
 
 workflows:
   ci:
