@@ -111,6 +111,8 @@ PokeAPI at the HTTP level, so no internet connection is needed.
    ```bash
    uv run pytest -v
    ```
+## Badges
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/Razihel92/takehome-challenge-python/tree/main.svg?style=svg&circle-token=CCIPRJ_QEnpXkpBxKYiHT3ermwhAw_f16bb29b4edd53e66a082686cebe87b960ea6e58)](https://dl.circleci.com/status-badge/redirect/gh/Razihel92/takehome-challenge-python/tree/main)
 
 ## Decisions made
 
