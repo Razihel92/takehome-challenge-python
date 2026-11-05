@@ -11,7 +11,7 @@ from alembic.config import Config
 from app.config import settings
 from app.database import DATABASE_URL, get_db
 from app.main import app
-from app.pokeapi.dependencies import BASE_URL, get_http_client
+from app.pokeapi.dependencies import get_http_client
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
@@ -65,7 +65,7 @@ async def client(pokeapi_requests: list[str]) -> AsyncGenerator[httpx.AsyncClien
     async def override_get_http_client() -> AsyncGenerator[httpx.AsyncClient]:
         transport = httpx.MockTransport(create_pokeapi_handler(pokeapi_requests))
         async with httpx.AsyncClient(
-            base_url=BASE_URL, transport=transport
+            base_url=settings.pokeapi_url, transport=transport
         ) as http_client:
             yield http_client
 

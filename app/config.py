@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     port: int
     host_api: str
     app_env: str = "development"
+    pokeapi_url: str
     model_config = SettingsConfigDict(env_file=os.getenv("ENV_FILE", ".env"))
 
 
