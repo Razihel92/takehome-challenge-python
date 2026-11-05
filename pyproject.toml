@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 authors = [
-    { name = "Andres Triana", email = "andres.triana@handtag.com.co" }
+    { name = "Andres Triana", email = "andres.010192@gmail.com" }
 ]
 requires-python = ">=3.14"
 dependencies = [
@@ -21,6 +21,7 @@ package = false
 [dependency-groups]
 dev = [
     "pytest>=9.2.0",
+    "pytest-cov>=7.1.0",
 ]
 
 [tool.pytest.ini_options]

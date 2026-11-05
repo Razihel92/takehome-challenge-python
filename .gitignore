@@ -15,3 +15,10 @@ postgres/
 # Environment variables
 .env
 .env.test
+
+# Test cache and coverage reports
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
