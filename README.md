@@ -5,7 +5,7 @@
 
 ### Live demo
 
-Interactive API docs (Swagger): **https://takehome-challenge-python.onrender.com/docs**
+Interactive API docs [API Swagger](https://takehome-challenge-python.onrender.com/docs)
 
 > Hosted on Render's free tier: the service sleeps when idle, so the first request may take ~30-50 seconds to wake it up.
 
