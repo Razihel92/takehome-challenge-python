@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     app_env: str = "development"
     pokeapi_url: str
     model_config = SettingsConfigDict(env_file=os.getenv("ENV_FILE", ".env"))
+    db_ssl: bool = False
 
 
 settings = Settings()
