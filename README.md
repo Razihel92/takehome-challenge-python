@@ -1,5 +1,16 @@
 # Takehome challenge
 
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/Razihel92/takehome-challenge-python/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/Razihel92/takehome-challenge-python/tree/main)
+[![Coverage Status](https://coveralls.io/repos/github/Razihel92/takehome-challenge-python/badge.svg?branch=main)](https://coveralls.io/github/Razihel92/takehome-challenge-python?branch=main)
+
+### Live demo
+
+Interactive API docs (Swagger): **https://takehome-challenge-python.onrender.com/docs**
+
+> Hosted on Render's free tier: the service sleeps when idle, so the first request may take ~30-50 seconds to wake it up.
+
+Deployed on **Render** (Docker) with a **Neon** PostgreSQL database. Every push to `main` runs the CircleCI pipeline, and Render deploys automatically once the checks pass.
+
 ### Features
 
 - Create new Users with their Pokemon Ids
@@ -111,9 +122,6 @@ PokeAPI at the HTTP level, so no internet connection is needed.
    ```bash
    uv run pytest -v
    ```
-## Badges
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/Razihel92/takehome-challenge-python/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/Razihel92/takehome-challenge-python/tree/main)
-[![Coverage Status](https://coveralls.io/repos/github/Razihel92/takehome-challenge-python/badge.svg?branch=main)](https://coveralls.io/github/Razihel92/takehome-challenge-python?branch=main)
 
 ## Decisions made
 
