@@ -1,5 +1,5 @@
 from fastapi import Depends
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -24,8 +24,8 @@ class UserRepository:
         return await self.db.get(User, user_id)
 
     async def get_all_users(self) -> list[User]:
-        resultado = await self.db.execute(select(User).order_by(User.id))
-        return list(resultado.scalars().all())
+        result = await self.db.execute(select(User).order_by(User.id))
+        return list(result.scalars().all())
 
     async def update_user(
         self, user_id: int, user_data: UserUpdateSchema
@@ -48,6 +48,10 @@ class UserRepository:
         await self.db.delete(user_to_delete)
         await self.db.commit()
         return user_to_delete
+
+    async def delete_all_users(self) -> None:
+        await self.db.execute(delete(User))
+        await self.db.commit()
 
     async def _commit(self) -> None:
         try:

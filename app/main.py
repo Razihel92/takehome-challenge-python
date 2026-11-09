@@ -1,13 +1,22 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
+from app.config import settings
 from app.exceptions import AppError
+from app.seed.router import router as seed_router
 from app.users.router import router as users_router
 
 app = FastAPI()
 app.include_router(users_router)
 
-posts: list[dict] = [{"id": 1, "name": "Andres"}, {"id": 2, "name": "Felipe"}]
+if settings.app_env != "production":
+    app.include_router(seed_router)
+
+
+posts: list[dict[str, int | str]] = [
+    {"id": 1, "name": "Andres"},
+    {"id": 2, "name": "Felipe"},
+]
 
 
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
