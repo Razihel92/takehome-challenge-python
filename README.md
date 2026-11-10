@@ -85,6 +85,10 @@ Interactive docs are available at `http://localhost:8000/docs`.
 | `GET`    | `/users/{id}`     | Get a user with Pokemon/item names from PokeAPI |
 | `PATCH`  | `/users/{id}`     | Partially update a user                        |
 | `DELETE` | `/users/{id}`     | Delete a user                                  |
+| `POST`   | `/seed/`          | Reset the users table with sample data         |
+
+> **Note:** `/seed/` only exists when `APP_ENV` is not `production`. It
+> **deletes all users** before creating the sample ones.
 
 ### Error responses
 
