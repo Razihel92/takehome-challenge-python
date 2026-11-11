@@ -1,5 +1,9 @@
+from collections.abc import Awaitable, Callable
+from typing import Any
+
 import httpx
 import pytest
+from app.security import password_hash
 
 from .factories import user_payload
 
@@ -74,6 +78,35 @@ async def test_create_user_with_invalid_pokemon_returns_400(
 
     users = await client.get("/users/")
     assert users.json() == []
+
+
+@pytest.mark.anyio
+async def test_create_user_with_invalid_item_returns_400(
+    client: httpx.AsyncClient,
+) -> None:
+    response = await client.post(
+        "/users/",
+        json=user_payload(pokemon_ids=[25], items_ids=[1, 9999]),
+    )
+
+    assert response.status_code == 400
+    assert response.json() == {"detail": "IDs de Item no encontrados: [9999]"}
+
+    users = await client.get("/users/")
+    assert users.json() == []
+
+
+@pytest.mark.anyio
+async def test_create_user_stores_hashed_password(
+    create_user: Callable[..., Awaitable[dict[str, Any]]],
+    get_stored_password: Callable[..., Awaitable[str]],
+) -> None:
+    user = await create_user()
+
+    stored_password = await get_stored_password(user["id"])
+
+    assert stored_password != "pikachu123"
+    assert password_hash.verify("pikachu123", stored_password)
 
 
 # --- GET /users/ ---
@@ -188,6 +221,44 @@ async def test_update_user_returns_200(client: httpx.AsyncClient) -> None:
 
 
 @pytest.mark.anyio
+async def test_update_user_hashes_new_password(
+    client: httpx.AsyncClient,
+    create_user: Callable[..., Awaitable[dict[str, Any]]],
+    get_stored_password: Callable[..., Awaitable[str]],
+) -> None:
+    user_body = await create_user()
+    response = await client.patch(
+        f"/users/{user_body['id']}",
+        json={"password": "nueva123"},
+    )
+
+    stored_password = await get_stored_password(user_body["id"])
+
+    assert response.status_code == 200
+    assert not password_hash.verify("pikachu123", stored_password)
+    assert stored_password != "nueva123"
+    assert password_hash.verify("nueva123", stored_password)
+
+
+@pytest.mark.anyio
+async def test_update_user_without_password_keeps_stored_password(
+    client: httpx.AsyncClient,
+    create_user: Callable[..., Awaitable[dict[str, Any]]],
+    get_stored_password: Callable[..., Awaitable[str]],
+) -> None:
+    user_body = await create_user()
+    pass_before_change = await get_stored_password(user_body["id"])
+    response = await client.patch(
+        f"/users/{user_body['id']}",
+        json={"username": "red"},
+    )
+    pass_after_change = await get_stored_password(user_body["id"])
+
+    assert response.status_code == 200
+    assert pass_before_change == pass_after_change
+
+
+@pytest.mark.anyio
 async def test_update_missing_user_returns_404(client: httpx.AsyncClient) -> None:
     response = await client.patch(
         "/users/999",
@@ -246,6 +317,29 @@ async def test_update_user_with_duplicate_username_returns_409(
     ).json()
 
     response = await client.patch(f"/users/{misty['id']}", json={"username": "ash"})
+
+    misty_after_patch = (await client.get(f"/users/{misty['id']}")).json()
+
+    assert response.status_code == 409
+    assert response.json() == {"detail": "El username o email ya está en uso"}
+    assert misty_after_patch == misty
+
+
+@pytest.mark.anyio
+async def test_update_user_with_duplicate_email_returns_409(
+    client: httpx.AsyncClient,
+) -> None:
+    await client.post("/users/", json=user_payload())
+    misty = (
+        await client.post(
+            "/users/",
+            json=user_payload(username="misty", email="misty@pokemon.com"),
+        )
+    ).json()
+
+    response = await client.patch(
+        f"/users/{misty['id']}", json={"email": "ash@pokemon.com"}
+    )
 
     misty_after_patch = (await client.get(f"/users/{misty['id']}")).json()
 

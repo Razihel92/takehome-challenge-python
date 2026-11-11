@@ -3,6 +3,7 @@ from fastapi import Depends
 from app.exceptions import AppError
 from app.pokeapi import PokeApiClient
 from app.pokeapi.schemas import ItemSchema, PokemonSchema
+from app.security import hash_password
 from app.users.models import User
 from app.users.repository import UserRepository
 from app.users.schemas import UserCreateSchema, UserResponseSchema, UserUpdateSchema
@@ -21,9 +22,13 @@ class UserService:
         pokemons_by_id = await self._validate_elements_ids(
             user_data.pokemon_ids, PokemonSchema
         )
+
         items_by_id = await self._validate_elements_ids(user_data.items_ids, ItemSchema)
 
-        usuario = await self.repository.create_user(user_data)
+        user_with_pass_hashed = user_data.model_copy(
+            update={"password": await hash_password(user_data.password)}
+        )
+        usuario = await self.repository.create_user(user_with_pass_hashed)
 
         return self._build_response(usuario, pokemons_by_id, items_by_id)
 
@@ -65,6 +70,8 @@ class UserService:
 
         items_by_id = None
 
+        user_to_update = user_data
+
         if user_data.pokemon_ids is not None:
             pokemons_by_id = await self._validate_elements_ids(
                 user_data.pokemon_ids, PokemonSchema
@@ -75,7 +82,12 @@ class UserService:
                 user_data.items_ids, ItemSchema
             )
 
-        usuario = await self.repository.update_user(user_id, user_data)
+        if user_data.password is not None:
+            user_to_update = user_data.model_copy(
+                update={"password": await hash_password(user_data.password)}
+            )
+
+        usuario = await self.repository.update_user(user_id, user_to_update)
 
         if usuario is None:
             raise AppError.not_found("Usuario no encontrado")
