@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     pokeapi_url: str
     model_config = SettingsConfigDict(env_file=os.getenv("ENV_FILE", ".env"))
     db_ssl: bool = False
+    cors_origins: list[str] = ["http://localhost:5173"]
 
 
 settings = Settings()

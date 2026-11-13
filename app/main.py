@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from app.config import settings
@@ -7,6 +8,13 @@ from app.seed.router import router as seed_router
 from app.users.router import router as users_router
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(users_router)
 
 if settings.app_env != "production":
