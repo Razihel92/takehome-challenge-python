@@ -97,6 +97,22 @@ async def test_create_user_with_invalid_item_returns_400(
 
 
 @pytest.mark.anyio
+async def test_create_user_when_pokeapi_is_down_returns_503(
+    client: httpx.AsyncClient,
+    pokeapi_down: None,
+) -> None:
+    response = await client.post("/users/", json=user_payload())
+
+    assert response.status_code == 503
+    assert response.json() == {
+        "detail": "PokeAPI no está disponible, intenta más tarde"
+    }
+
+    users = await client.get("/users/")
+    assert users.json() == []
+
+
+@pytest.mark.anyio
 async def test_create_user_stores_hashed_password(
     create_user: Callable[..., Awaitable[dict[str, Any]]],
     get_stored_password: Callable[..., Awaitable[str]],
@@ -190,6 +206,24 @@ async def test_get_missing_user_returns_404(client: httpx.AsyncClient) -> None:
 
     assert response.status_code == 404
     assert response.json() == {"detail": "Usuario no encontrado"}
+
+
+@pytest.mark.anyio
+async def test_get_user_when_pokeapi_is_down_returns_503(
+    client: httpx.AsyncClient,
+    create_user: Callable[..., Awaitable[dict[str, Any]]],
+    request: pytest.FixtureRequest,
+) -> None:
+    user = await create_user()
+    # Se activa recién aquí: el usuario se creó con PokeAPI funcionando
+    request.getfixturevalue("pokeapi_down")
+
+    response = await client.get(f"/users/{user['id']}")
+
+    assert response.status_code == 503
+    assert response.json() == {
+        "detail": "PokeAPI no está disponible, intenta más tarde"
+    }
 
 
 # --- PATCH /users/{user_id} ---

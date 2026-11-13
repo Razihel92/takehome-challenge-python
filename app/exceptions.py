@@ -20,3 +20,7 @@ class AppError(Exception):
     @classmethod
     def conflict(cls, message: str) -> Self:
         return cls(status.HTTP_409_CONFLICT, message)
+
+    @classmethod
+    def service_unavailable(cls, message: str) -> Self:
+        return cls(status.HTTP_503_SERVICE_UNAVAILABLE, message)

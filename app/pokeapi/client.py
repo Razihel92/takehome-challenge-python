@@ -3,6 +3,7 @@ import asyncio
 import httpx
 from fastapi import Depends
 
+from app.exceptions import AppError
 from app.pokeapi.dependencies import get_http_client
 from app.pokeapi.schemas import ItemSchema, PokemonSchema
 
@@ -22,12 +23,18 @@ class PokeApiClient:
         schema: type[T],
     ) -> T | None:
 
-        response = await self.http.get(f"/{ROUTE_ELEMENTS[schema]}/{id_element}")
+        try:
+            response = await self.http.get(f"/{ROUTE_ELEMENTS[schema]}/{id_element}")
 
-        if response.status_code == 404:
-            return None
+            if response.status_code == 404:
+                return None
+            response.raise_for_status()
 
-        response.raise_for_status()
+        except httpx.HTTPError as exc:
+            raise AppError.service_unavailable(
+                "PokeAPI no está disponible, intenta más tarde"
+            ) from exc
+
         return schema.model_validate(response.json())
 
     async def get_elements_by_ids[T: (PokemonSchema, ItemSchema)](
